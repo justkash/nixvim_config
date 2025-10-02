@@ -8,6 +8,9 @@
   plugins = {
     conjure.enable = true;
     undotree.enable = true;
-    fzf-lua.enable = true;
   };
+
+  extraPlugins = [
+    (pkgs.callPackage ./fzf-lua.nix {})
+  ];
 }
