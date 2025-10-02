@@ -2,21 +2,26 @@
   plugins.treesitter = {
     enable = true;
     folding = true;
+    nixGrammars = false;
     settings = {
       auto_install = false;
       highlight.enable = true;
       indent.enable = true;
     };
-    grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
+    package = pkgs.vimPlugins.nvim-treesitter.withPlugins (p: with p; [
       regex
       bash
       nix
+      javascript
+      typescript
       elixir
       heex
       eex
       rust
       clojure
+      python
       go
+      c
       cpp
       haskell
       toml
@@ -24,6 +29,8 @@
       json
       make
       markdown
-    ];
+      css
+      html
+    ]);
   };
 }
