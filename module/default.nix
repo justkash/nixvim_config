@@ -26,7 +26,26 @@
       rust_recommended_style = 0;
     };
 
-    clipboard.register = "unnamedplus";
+    clipboard = {
+      register = "unnamedplus";
+      providers.wl-copy.enable = false; # Disable wayland
+      providers.xclip.enable = false;   # Disable X11
+    };
+
+    # Enable OSC 52 support
+    extraConfigLua = ''
+      vim.g.clipboard = {
+        name = 'OSC 52',
+        copy = {
+          ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+          ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+        },
+        paste = {
+          ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+          ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+        },
+      }
+    '';
 
     opts = {
       # basic settings
