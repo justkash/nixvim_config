@@ -14,6 +14,7 @@
       nix
       javascript
       typescript
+      purescript
       elixir
       heex
       eex

@@ -25,12 +25,12 @@
       nixd.enable = true;
       rust_analyzer = {
         enable = true;
-	installCargo = true;
-	installRustc = true;
+        installCargo = true;
+        installRustc = true;
       };
       hls = {
         enable = true;
-	installGhc = true;
+        installGhc = true;
       };
     };
   };
