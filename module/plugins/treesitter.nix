@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   plugins.treesitter = {
     enable = true;
-    folding = true;
+    folding.enable = true;
     nixGrammars = false;
     settings = {
       auto_install = false;

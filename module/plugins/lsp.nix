@@ -23,6 +23,8 @@
       clojure_lsp.enable = true;
       gopls.enable = true;
       nixd.enable = true;
+      clangd.enable = true;
+      jdtls.enable = true;
       rust_analyzer = {
         enable = true;
         installCargo = true;
