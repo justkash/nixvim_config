@@ -16,6 +16,7 @@
       typescript
       purescript
       elixir
+      fennel
       heex
       eex
       rust
