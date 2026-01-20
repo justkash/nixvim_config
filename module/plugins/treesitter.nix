@@ -9,8 +9,13 @@
       indent.enable = true;
     };
     package = pkgs.vimPlugins.nvim-treesitter.withPlugins (p: with p; [
-      regex
       bash
+      c
+      cmake
+      cpp
+      css
+      lua
+      regex
       nix
       javascript
       typescript
@@ -23,15 +28,12 @@
       clojure
       python
       go
-      c
-      cpp
       haskell
       toml
       yaml
       json
       make
       markdown
-      css
       html
     ]);
   };

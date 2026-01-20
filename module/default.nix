@@ -13,7 +13,12 @@
     performance = {
       combinePlugins = {
         enable = true;
-	standalonePlugins = ["nvim-treesitter"];
+        # Exclude plugins that need to be standalone
+        standalonePlugins = [
+          "nvim-treesitter"
+          "nvim-lspconfig"
+          "conjure"
+        ];
       };
       byteCompileLua.enable = true;
     };
@@ -45,6 +50,48 @@
           ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
         },
       }
+
+      -- Diagnostic configuration
+      vim.diagnostic.config({
+        virtual_text = {
+          source = "if_many",
+        },
+        signs = true,
+        underline = true,
+        update_in_insert = false,
+        severity_sort = true,
+        float = {
+          border = "rounded",
+          source = "always",
+        },
+      })
+
+      -- Diagnostic signs
+      -- local signs = { Error = "E", Warn = "⚠", Hint = "󰌵", Info = "ℹ" }
+      -- for type, icon in pairs(signs) do
+      --   local hl = "DiagnosticSign" .. type
+      --   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+      -- end
+
+      -- LSP handlers with rounded borders
+      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+        vim.lsp.handlers.hover, { border = "rounded" }
+      )
+      vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
+        vim.lsp.handlers.signature_help, { border = "rounded" }
+      )
+
+      -- User command to check LSP status
+      vim.api.nvim_create_user_command("LspCheck", function()
+        local clients = vim.lsp.get_clients({ bufnr = 0 })
+        if #clients == 0 then
+          print("No LSP clients attached to this buffer")
+        else
+          for _, client in ipairs(clients) do
+            print(string.format("LSP: %s (id: %d)", client.name, client.id))
+          end
+        end
+      end, { desc = "Check LSP clients attached to current buffer" })
     '';
 
     opts = {
@@ -60,6 +107,7 @@
       visualbell = false;
       autoread = true;
       signcolumn = "number";
+      #signcolumn = "yes";  # Always show for LSP diagnostics
 
       # display
       background = "dark";
@@ -102,7 +150,8 @@
       swapfile = false;
       modifiable = true;
       undofile = true;
-      updatetime = 1000; # waits 1s of no action for swap file write
+      updatetime = 500; # waits 1s of no action for swap file write
+      timeoutlen = 500;
     };
 
     colorschemes.gruvbox = { # TODO Pull colors from global scheme
