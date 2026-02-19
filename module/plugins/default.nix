@@ -20,5 +20,6 @@
 
   extraPlugins = [
     (pkgs.callPackage ./fzf-lua.nix {})
+    (pkgs.callPackage ./editable-term.nix {})
   ];
 }

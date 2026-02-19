@@ -92,6 +92,9 @@
           end
         end
       end, { desc = "Check LSP clients attached to current buffer" })
+
+      -- editable-term.nvim
+      require("editable-term").setup()
     '';
 
     opts = {
