@@ -41,6 +41,7 @@
           };
         };
         clojure_lsp.enable = true;
+        omnisharp.enable = true;
         gopls.enable = true;
         nixd.enable = true;
         clangd.enable = true;
@@ -135,6 +136,7 @@
   extraPackages = with pkgs; [
     nixfmt
     clang-tools
+    dotnet-sdk
     luajitPackages.fennel
 
     # PureScript

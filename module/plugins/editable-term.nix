@@ -7,7 +7,7 @@
     owner = "xb-bx";
     repo = "editable-term.nvim";
     rev = "16ac164615d465fedbbb4918a4182731e1beb53b";
-    sha256 = "sha256-JbiBnMKEf7rfpS0PCodBNTM4P7nWPKoFhOUbO4i7uSI=";
+    sha256 = "sha256-i2W+7ZV7la/QgfJ4NDrOuj/+zRw2/rLQ4QukXdrn29M=";
   };
   doCheck = false;
   doInstallCheck = false;
