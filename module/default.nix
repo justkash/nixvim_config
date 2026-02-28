@@ -93,6 +93,30 @@
         end
       end, { desc = "Check LSP clients attached to current buffer" })
 
+      local gutter_groups = {
+        "SignColumn",
+        "LineNr",
+        "CursorLineNr",
+        "FoldColumn",
+        "CursorLineSign",
+        "CursorLineFold",
+      }
+
+      local function sync_gutter_background()
+        local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
+
+        for _, group in ipairs(gutter_groups) do
+          local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
+          hl.bg = normal.bg
+          vim.api.nvim_set_hl(0, group, hl)
+        end
+      end
+
+      vim.api.nvim_create_autocmd("ColorScheme", {
+        callback = sync_gutter_background,
+      })
+      sync_gutter_background()
+
       -- editable-term.nvim
       require("editable-term").setup()
     '';
