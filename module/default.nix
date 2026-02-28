@@ -67,11 +67,11 @@
       })
 
       -- Diagnostic signs
-      -- local signs = { Error = "E", Warn = "⚠", Hint = "󰌵", Info = "ℹ" }
-      -- for type, icon in pairs(signs) do
-      --   local hl = "DiagnosticSign" .. type
-      --   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-      -- end
+      local signs = { Error = "☒", Warn = "⚠", Hint = "󰌵", Info = "ℹ" }
+      for type, icon in pairs(signs) do
+        local hl = "DiagnosticSign" .. type
+        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+      end
 
       -- LSP handlers with rounded borders
       vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
@@ -109,8 +109,7 @@
       errorbells = false;
       visualbell = false;
       autoread = true;
-      signcolumn = "number";
-      #signcolumn = "yes";  # Always show for LSP diagnostics
+      signcolumn = "yes"; # always show signs (diagnostics, gitsigns)
 
       # display
       background = "dark";
@@ -127,8 +126,8 @@
       termguicolors = true;
 
       # sidebar
-      number = true; # line number on the left
-      relativenumber = true;
+      number = false; # hide absolute line numbers
+      relativenumber = false; # hide relative line numbers
       showcmd = true; # display command in bottom bar
 
       # search

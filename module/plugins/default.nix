@@ -8,6 +8,7 @@
   plugins = {
     conjure.enable = true;
     undotree.enable = true;
+    gitsigns.enable = true;
     web-devicons = {
       enable = true;
       autoLoad = true;
