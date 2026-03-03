@@ -2,6 +2,7 @@
   imports = [
     ./treesitter.nix
     ./lsp.nix
+    ./completion.nix
     ./lazygit.nix
   ];
 
