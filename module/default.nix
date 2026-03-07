@@ -117,6 +117,13 @@
       })
       sync_gutter_background()
 
+      -- fzf-lua: use fd for file listing to respect .gitignore
+      require("fzf-lua").setup({
+        files = {
+          cmd = "fd --type f --follow",
+        },
+      })
+
       -- editable-term.nvim
       require("editable-term").setup()
     '';
