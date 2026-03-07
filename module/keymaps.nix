@@ -58,7 +58,7 @@
     {
       mode = "n";
       key = "<leader>ff";
-      action.__raw = "require('fzf-lua').files";
+      action.__raw = "function() require('fzf-lua').files({ cmd = 'fd --type f --hidden --follow --exclude .git' }) end";
       options = { silent = true; desc = "Find files"; };
     }
     {
