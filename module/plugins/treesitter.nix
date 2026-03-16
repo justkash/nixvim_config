@@ -35,6 +35,7 @@
       json
       make
       markdown
+      markdown_inline
       html
     ]);
   };

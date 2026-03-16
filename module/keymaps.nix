@@ -92,6 +92,14 @@
       options = { silent = true; desc = "Diagnostics"; };
     }
 
+    # Markdown Preview
+    {
+      mode = "n";
+      key = "<leader>mp";
+      action = "<cmd>MarkdownPreviewToggle<CR>";
+      options = { silent = true; desc = "Toggle markdown preview"; };
+    }
+
     # Undotree
     {
       mode = "n";

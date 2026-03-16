@@ -117,6 +117,9 @@
       })
       sync_gutter_background()
 
+      -- markview.nvim
+      require("markview").setup()
+
       -- fzf-lua: use fd for file listing to respect .gitignore
       require("fzf-lua").setup({
         files = {

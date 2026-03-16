@@ -23,5 +23,11 @@
   extraPlugins = [
     (pkgs.callPackage ./fzf-lua.nix {})
     (pkgs.callPackage ./editable-term.nix {})
+    (pkgs.vimPlugins.markview-nvim.overrideAttrs (old: {
+      postPatch = (old.postPatch or "") + ''
+        rm -rf doc/
+      '';
+    }))
+    pkgs.vimPlugins.markdown-preview-nvim
   ];
 }
