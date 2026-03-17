@@ -1,12 +1,12 @@
 { pkgs, ... }: {
   keymaps = [
     # Terminal
-    {
-      mode = "t";
-      key = "<Esc>";
-      action = "<C-\\><C-n>";
-      options.desc = "Exit terminal mode";
-    }
+    # {
+    #   mode = "t";
+    #   key = "<Esc>";
+    #   action = "<C-\\><C-n>";
+    #   options.desc = "Exit terminal mode";
+    # }
     # {
     #   mode = "t";
     #   key = "<leader>cd";
