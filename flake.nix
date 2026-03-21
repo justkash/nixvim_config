@@ -11,12 +11,21 @@
       url = "github:thomashoneyman/purescript-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nvimObsessions = {
+      url = "path:/Users/akash/Documents/projects/obsessions";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixvim, purescript-overlay, ...  }: 
+  outputs = { self, nixpkgs, nixvim, purescript-overlay, nvimObsessions }: 
   let
     supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-    module = import ./module;
+    module = {
+      imports = [
+        (import ./module)
+        nvimObsessions.nixvimModules.default
+      ];
+    };
     forEachSupportedSystem = f: nixpkgs.lib.genAttrs supportedSystems (system: 
       let
         pkgs = import nixpkgs {
