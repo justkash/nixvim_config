@@ -120,10 +120,14 @@
       -- markview.nvim
       require("markview").setup()
 
-      -- fzf-lua: use fd for file listing to respect .gitignore
+      -- fzf-lua: use documented setup options and rely on the picker defaults
+      -- to respect .gitignore from the current working directory.
       require("fzf-lua").setup({
+        winopts = {
+          fullscreen = true,
+        },
         files = {
-          cmd = "fd --type f --follow",
+          follow = true,
         },
       })
 
