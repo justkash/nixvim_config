@@ -18,13 +18,39 @@
           gD = "declaration";
           gi = "implementation";
           gT = "type_definition";
-          K = "hover";
-          "<leader>cw" = "workspace_symbol"; 
-          "<leader>cr" = "rename"; 
+          "<leader>cw" = "workspace_symbol";
+          "<leader>cr" = "rename";
           "<leader>ca" = "code_action";
           "<leader>cf" = "format";
-          "<C-k>" = "signature_help";
         };
+        extra = [
+          {
+            mode = "n";
+            key = "K";
+            action.__raw = ''
+              function()
+                vim.lsp.buf.hover({ border = "rounded" })
+              end
+            '';
+            options = {
+              silent = true;
+              desc = "Lsp buf hover";
+            };
+          }
+          {
+            mode = "n";
+            key = "<C-k>";
+            action.__raw = ''
+              function()
+                vim.lsp.buf.signature_help({ border = "rounded" })
+              end
+            '';
+            options = {
+              silent = true;
+              desc = "Lsp buf signature_help";
+            };
+          }
+        ];
       };
 
       servers = {
