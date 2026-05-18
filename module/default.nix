@@ -111,12 +111,25 @@
 
       -- fzf-lua: use documented setup options and rely on the picker defaults
       -- to respect .gitignore from the current working directory.
-      require("fzf-lua").setup({
+      local fzf_lua = require("fzf-lua")
+      fzf_lua.setup({
         winopts = {
           fullscreen = true,
         },
         files = {
           follow = true,
+        },
+        actions = {
+          files = {
+            ["ctrl-q"] = {
+              prefix = "select-all+",
+              fn = fzf_lua.actions.file_sel_to_qf,
+            },
+            ["ctrl-l"] = {
+              prefix = "select-all+",
+              fn = fzf_lua.actions.file_sel_to_ll,
+            },
+          },
         },
       })
 

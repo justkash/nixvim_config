@@ -108,6 +108,34 @@
       options.desc = "Open LazyGit";
     }
 
+    # Quickfix navigation
+    {
+      mode = "n";
+      key = "]q";
+      action = "<cmd>cnext<CR>";
+      options = { silent = true; desc = "Next quickfix item"; };
+    }
+    {
+      mode = "n";
+      key = "[q";
+      action = "<cmd>cprev<CR>";
+      options = { silent = true; desc = "Previous quickfix item"; };
+    }
+
+    # Location list navigation
+    {
+      mode = "n";
+      key = "]l";
+      action = "<cmd>lnext<CR>";
+      options = { silent = true; desc = "Next location list item"; };
+    }
+    {
+      mode = "n";
+      key = "[l";
+      action = "<cmd>lprev<CR>";
+      options = { silent = true; desc = "Previous location list item"; };
+    }
+
     # Clear search highlight
     {
       mode = "n";
