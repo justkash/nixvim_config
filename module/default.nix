@@ -121,6 +121,7 @@
         },
         actions = {
           files = {
+            [1] = true,
             ["ctrl-q"] = {
               prefix = "select-all+",
               fn = fzf_lua.actions.file_sel_to_qf,
