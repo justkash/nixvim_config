@@ -12,7 +12,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nvimObsessions = {
-      url = "path:/Users/akash/Documents/projects/obsessions";
+      url = "github:justkash/obsessions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

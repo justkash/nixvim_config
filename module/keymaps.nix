@@ -92,6 +92,14 @@
       options = { silent = true; desc = "Diagnostics"; };
     }
 
+    # Obsessions
+    {
+      mode = "n";
+      key = "<leader>o";
+      action = "<cmd>ObsessionsPick<CR>";
+      options = { silent = true; desc = "Pick session (<C-d> to delete, <C-r> to rename)"; };
+    }
+
     # Undotree
     {
       mode = "n";
