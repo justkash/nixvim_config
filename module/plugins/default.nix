@@ -20,7 +20,10 @@
     };
   };
 
-  programs.obsessions.enable = true;
+  programs.obsessions = {
+    enable = true;
+    restoreLastSession = true;
+  };
 
   extraPlugins = [
     (pkgs.callPackage ./fzf-lua.nix {})
