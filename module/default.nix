@@ -115,6 +115,9 @@
       fzf_lua.setup({
         winopts = {
           fullscreen = true,
+          on_close = function()
+            vim.cmd("stopinsert")
+          end,
         },
         files = {
           follow = true,
