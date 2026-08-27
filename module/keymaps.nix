@@ -1,54 +1,35 @@
 { ... }: {
   keymaps = [
     # Terminal
-    # {
-    #   mode = "t";
-    #   key = "<Esc>";
-    #   action = "<C-\\><C-n>";
-    #   options.desc = "Exit terminal mode";
-    # }
-    # {
-    #   mode = "t";
-    #   key = "<leader>cd";
-    #   action = "pwd|pbcopy<CR><C-\\><C-n>:cd <C-r>+<CR>i";
-    # }
-    # {
-    #   mode = "t";
-    #   key = "<leader>cd";
-    #   action.__raw = ''
-    #     function()
-    #       local bufnr = vim.api.nvim_get_current_buf()
-    #       local pid = vim.b[bufnr].terminal_job_pid
-    #       if pid then
-    #         -- Get the cwd of the terminal process (macOS/Linux)
-    #         local handle = io.popen("lsof -p " .. pid .. " | grep cwd | awk '{print $NF}'")
-    #         if handle then
-    #           local cwd = handle:read("*l")
-    #           handle:close()
-    #           if cwd and cwd ~= "" then
-    #             vim.cmd("cd " .. vim.fn.fnameescape(cwd))
-    #             print("Changed directory to: " .. cwd)
-    #           end
-    #         end
-    #       end
-    #     end
-    #   '';
-    #   options = { desc = "Sync terminal pwd to Neovim cwd"; silent = true; };
-    # }
     {
       mode = "t";
       key = "<leader>cd";
       action.__raw = ''
         function()
-          -- Send pwd|pbcopy to the terminal and execute it
-          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("pwd|pbcopy<CR>", true, false, true), 't', false)
-          -- Wait a moment for clipboard to be set, then exit terminal mode and cd
-          vim.defer_fn(function()
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<C-\\><C-n>", true, false, true), 'n', false)
-            vim.cmd("cd " .. vim.fn.getreg("+"))
-            -- Return to terminal mode
-            vim.cmd("startinsert")
-          end, 100)
+          local pid = vim.fn.jobpid(vim.bo.channel)
+          local cwd
+
+          if vim.uv.os_uname().sysname == "Linux" then
+            cwd = vim.uv.fs_readlink("/proc/" .. pid .. "/cwd")
+          elseif vim.fn.executable("lsof") == 1 then
+            local result = vim.system(
+              { "lsof", "-a", "-p", tostring(pid), "-d", "cwd", "-Fn" },
+              { text = true }
+            ):wait()
+
+            if result.code == 0 then
+              cwd = result.stdout:match("\nn([^\r\n]+)")
+                or result.stdout:match("^n([^\r\n]+)")
+            end
+          end
+
+          if not cwd or vim.fn.isdirectory(cwd) == 0 then
+            vim.notify("Could not determine the terminal working directory", vim.log.levels.ERROR)
+            return
+          end
+
+          vim.cmd("cd " .. vim.fn.fnameescape(cwd))
+          vim.notify("Neovim cwd: " .. cwd, vim.log.levels.INFO)
         end
       '';
       options = { desc = "Sync terminal pwd to Neovim cwd"; silent = true; };
