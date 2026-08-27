@@ -55,6 +55,9 @@
       vim.diagnostic.config({
         virtual_text = {
           source = "if_many",
+          -- Inline virtual text participates in window wrapping instead of
+          -- being clipped at the edge of narrow splits.
+          virt_text_pos = "inline",
         },
         signs = true,
         underline = true,
