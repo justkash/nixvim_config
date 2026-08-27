@@ -113,6 +113,11 @@
       -- to respect .gitignore from the current working directory.
       local fzf_lua = require("fzf-lua")
       fzf_lua.setup({
+        defaults = {
+          -- Populate quickfix without opening its window. Use <leader>qt to
+          -- show the list when it is useful.
+          copen = false,
+        },
         winopts = {
           fullscreen = true,
           on_close = function()

@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ ... }: {
   keymaps = [
     # Terminal
     # {
@@ -91,6 +91,16 @@
       action.__raw = "require('fzf-lua').lsp_document_diagnostics";
       options = { silent = true; desc = "Diagnostics"; };
     }
+    {
+      mode = "n";
+      key = "<leader>dq";
+      action.__raw = ''
+        function()
+          vim.diagnostic.setqflist({ open = false })
+        end
+      '';
+      options = { silent = true; desc = "Diagnostics to quickfix"; };
+    }
 
     # Obsessions
     {
@@ -119,13 +129,30 @@
     # Quickfix navigation
     {
       mode = "n";
-      key = "]q";
+      key = "<leader>qt";
+      action.__raw = ''
+        function()
+          local quickfix = vim.fn.getqflist({ winid = 0 })
+          if quickfix.winid ~= 0 then
+            vim.cmd("cclose")
+          elseif #vim.fn.getqflist() > 0 then
+            vim.cmd("botright copen")
+          else
+            vim.notify("Quickfix list is empty", vim.log.levels.INFO)
+          end
+        end
+      '';
+      options = { silent = true; desc = "Toggle quickfix list"; };
+    }
+    {
+      mode = "n";
+      key = "C-j";
       action = "<cmd>cnext<CR>";
       options = { silent = true; desc = "Next quickfix item"; };
     }
     {
       mode = "n";
-      key = "[q";
+      key = "C-k";
       action = "<cmd>cprev<CR>";
       options = { silent = true; desc = "Previous quickfix item"; };
     }
