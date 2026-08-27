@@ -102,6 +102,14 @@
       options = { silent = true; desc = "Diagnostics to quickfix"; };
     }
 
+    # LSP
+    {
+      mode = "n";
+      key = "<leader>r";
+      action.__raw = "vim.lsp.buf.rename";
+      options = { silent = true; desc = "Rename symbol"; };
+    }
+
     # Obsessions
     {
       mode = "n";
