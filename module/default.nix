@@ -154,6 +154,7 @@
       backspace = "indent,eol,start"; # backspace works on every char in insert mode
       completeopt = "menuone,noselect";
       history = 1000;
+      scrollback = 100000; # maximum terminal scrollback retained by Neovim
       startofline = true;
       errorbells = false;
       visualbell = false;
