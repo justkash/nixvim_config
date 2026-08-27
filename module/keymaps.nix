@@ -137,7 +137,7 @@
     # Quickfix navigation
     {
       mode = "n";
-      key = "<leader>qt";
+      key = "<leader>q";
       action.__raw = ''
         function()
           local quickfix = vim.fn.getqflist({ winid = 0 })
@@ -154,13 +154,13 @@
     }
     {
       mode = "n";
-      key = "C-j";
+      key = "<C-j>";
       action = "<cmd>cnext<CR>";
       options = { silent = true; desc = "Next quickfix item"; };
     }
     {
       mode = "n";
-      key = "C-k";
+      key = "<C-k>";
       action = "<cmd>cprev<CR>";
       options = { silent = true; desc = "Previous quickfix item"; };
     }
