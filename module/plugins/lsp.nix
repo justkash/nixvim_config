@@ -10,7 +10,7 @@
           "<leader>j" = "goto_next";
           "<leader>k" = "goto_prev";
           "<leader>d" = "open_float";
-          "<leader>q" = "setloclist";
+          "<leader>ld" = "setloclist";
         };
         lspBuf = {
           gd = "definition";
@@ -39,7 +39,7 @@
           }
           {
             mode = "n";
-            key = "<C-k>";
+            key = "<leader>ls";
             action.__raw = ''
               function()
                 vim.lsp.buf.signature_help({ border = "rounded" })
