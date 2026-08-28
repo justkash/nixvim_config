@@ -57,18 +57,43 @@ in {
       providers.xclip.enable = false;   # Disable X11
     };
 
-    # Enable OSC 52 support
+    # Use OSC 52 for copy, but a native provider for paste. OSC 52 paste
+    # queries can block while waiting for terminals that do not support them.
     extraConfigLua = ''
+      local native_paste = {}
+
+      if vim.fn.has("mac") == 1 then
+        native_paste["+"] = { "pbpaste" }
+        native_paste["*"] = { "pbpaste" }
+      elseif vim.env.WAYLAND_DISPLAY and vim.fn.executable("wl-paste") == 1 then
+        native_paste["+"] = { "wl-paste", "--no-newline" }
+        native_paste["*"] = { "wl-paste", "--no-newline", "--primary" }
+      elseif vim.env.DISPLAY and vim.fn.executable("xclip") == 1 then
+        native_paste["+"] = { "xclip", "-o", "-selection", "clipboard" }
+        native_paste["*"] = { "xclip", "-o", "-selection", "primary" }
+      elseif vim.env.DISPLAY and vim.fn.executable("xsel") == 1 then
+        native_paste["+"] = { "xsel", "--output", "--clipboard" }
+        native_paste["*"] = { "xsel", "--output", "--primary" }
+      else
+        local function unavailable_paste()
+          vim.notify(
+            "No native clipboard paste provider is available",
+            vim.log.levels.WARN
+          )
+          return { {}, "v" }
+        end
+
+        native_paste["+"] = unavailable_paste
+        native_paste["*"] = unavailable_paste
+      end
+
       vim.g.clipboard = {
-        name = 'OSC 52',
+        name = "OSC 52 copy with native paste",
         copy = {
-          ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-          ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+          ["+"] = require("vim.ui.clipboard.osc52").copy("+"),
+          ["*"] = require("vim.ui.clipboard.osc52").copy("*"),
         },
-        paste = {
-          ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-          ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
-        },
+        paste = native_paste,
       }
 
       -- Diagnostic configuration
