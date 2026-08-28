@@ -1,6 +1,10 @@
-# Build plugin from scratch to avoid problems with tests in a headless
-# environment like the Raspberry Pi.
-{ lib, fetchFromGitHub, vimUtils, ... }: vimUtils.buildVimPlugin {
+# Pin the plugin revision and disable derivation checks for headless builds.
+{
+  fetchFromGitHub,
+  vimUtils,
+  ...
+}:
+vimUtils.buildVimPlugin {
   pname = "editable-term";
   version = "2026-2-19";
   src = fetchFromGitHub {

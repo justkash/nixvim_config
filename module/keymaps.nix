@@ -7,29 +7,42 @@
       action.__raw = ''
         function()
           local pid = vim.fn.jobpid(vim.bo.channel)
-          local cwd
+
+          local function set_cwd(cwd)
+            if not cwd or vim.fn.isdirectory(cwd) == 0 then
+              vim.notify(
+                "Could not determine the terminal working directory",
+                vim.log.levels.ERROR
+              )
+              return
+            end
+
+            vim.cmd("cd " .. vim.fn.fnameescape(cwd))
+            vim.notify("Neovim cwd: " .. cwd, vim.log.levels.INFO)
+          end
 
           if vim.uv.os_uname().sysname == "Linux" then
-            cwd = vim.uv.fs_readlink("/proc/" .. pid .. "/cwd")
+            set_cwd(vim.uv.fs_readlink("/proc/" .. pid .. "/cwd"))
           elseif vim.fn.executable("lsof") == 1 then
-            local result = vim.system(
+            vim.system(
               { "lsof", "-a", "-p", tostring(pid), "-d", "cwd", "-Fn" },
-              { text = true }
-            ):wait()
+              { text = true },
+              function(result)
+                local cwd
+                if result.code == 0 then
+                  local stdout = result.stdout or ""
+                  cwd = stdout:match("\nn([^\r\n]+)")
+                    or stdout:match("^n([^\r\n]+)")
+                end
 
-            if result.code == 0 then
-              cwd = result.stdout:match("\nn([^\r\n]+)")
-                or result.stdout:match("^n([^\r\n]+)")
-            end
+                vim.schedule(function()
+                  set_cwd(cwd)
+                end)
+              end
+            )
+          else
+            set_cwd(nil)
           end
-
-          if not cwd or vim.fn.isdirectory(cwd) == 0 then
-            vim.notify("Could not determine the terminal working directory", vim.log.levels.ERROR)
-            return
-          end
-
-          vim.cmd("cd " .. vim.fn.fnameescape(cwd))
-          vim.notify("Neovim cwd: " .. cwd, vim.log.levels.INFO)
         end
       '';
       options = {
@@ -38,7 +51,7 @@
       };
     }
 
-    # FZF keymaps are defined through lz.n so they load fzf-lua on demand.
+    # Diagnostics
     {
       mode = "n";
       key = "<leader>dq";
@@ -159,7 +172,7 @@
       options.desc = "Clear search highlight";
     }
 
-    # Better indenting
+    # Keep the visual selection after indenting
     {
       mode = "v";
       key = "<";

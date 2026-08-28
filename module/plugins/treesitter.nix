@@ -17,10 +17,8 @@
       enable = true;
       disable.__raw = "function(_, bufnr) return vim.b[bufnr].large_file == true end";
     };
+    # Install pinned Nix grammars instead of compiling parsers at runtime.
     nixGrammars = true;
-    settings = {
-      auto_install = false;
-    };
     grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
       bash
       c

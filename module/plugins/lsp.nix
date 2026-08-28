@@ -2,8 +2,8 @@
   plugins = {
     lsp = {
       enable = true;
-      # Current-line inlay hints are requested below instead of enabling the
-      # native whole-buffer renderer.
+      # Disable Nixvim's whole-buffer renderer; the implementation below
+      # requests hints only for the current line.
       inlayHints = false;
       lazyLoad.settings.event = [
         "BufReadPre"
@@ -40,7 +40,7 @@
             '';
             options = {
               silent = true;
-              desc = "Lsp buf hover";
+              desc = "LSP hover";
             };
           }
           {
@@ -53,7 +53,7 @@
             '';
             options = {
               silent = true;
-              desc = "Lsp buf signature_help";
+              desc = "LSP signature help";
             };
           }
         ];

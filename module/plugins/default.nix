@@ -19,8 +19,8 @@
               local fzf_lua = require("fzf-lua")
               fzf_lua.setup({
                 defaults = {
-                  -- Populate quickfix without opening its window. Use
-                  -- <leader>q to show the list when it is useful.
+                  -- Keep quickfix closed after <C-q> populates it;
+                  -- <leader>q opens it when needed.
                   copen = false,
                 },
                 winopts = {
@@ -145,9 +145,7 @@
 
     web-devicons = {
       enable = true;
-      autoLoad = true;
       settings = {
-        color_icons = true;
         strict = true;
       };
     };

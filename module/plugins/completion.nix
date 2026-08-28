@@ -2,7 +2,6 @@
   plugins = {
     cmp = {
       enable = true;
-      autoEnableSources = true;
 
       settings = {
         snippet.expand = ''
@@ -60,20 +59,12 @@
       lazyLoad.settings.event = "InsertEnter";
     };
 
-    cmp-nvim-lsp.enable = true;
-    cmp-buffer.enable = true;
-    cmp-path.enable = true;
-    cmp_luasnip.enable = true;
-
     lsp-signature = {
       enable = true;
       lazyLoad.settings.event = "InsertEnter";
       settings = {
-        bind = true;
         floating_window = false;
-        hint_enable = true;
         hint_inline.__raw = ''function() return "inline" end'';
-        handler_opts.border = "rounded";
       };
     };
   };

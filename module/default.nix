@@ -11,17 +11,17 @@ in
   ];
 
   config = {
-    # Language-specific tools come from project dev shells. None of the
-    # configured plugins use Neovim's remote plugin providers.
+    # Project compilers and SDKs come from dev shells. None of the configured
+    # plugins use Neovim's remote plugin providers.
     withNodeJs = false;
     withPerl = false;
     withPython3 = false;
     withRuby = false;
     waylandSupport = false;
 
-    # Avoid plugin-declared build toolchains (GCC, Go, Node, full Git, etc.)
-    # being added to the editor closure. Required runtime tools are listed
-    # explicitly in extraPackages.
+    # Avoid adding plugin-declared build toolchains (GCC, Go, Node, full Git,
+    # etc.) to the editor closure. Runtime CLI tools are listed in
+    # extraPackages, while language servers are configured under plugins.lsp.
     autowrapRuntimeDeps = false;
     dependencies = {
       gcc.enable = false;
@@ -32,15 +32,7 @@ in
     };
 
     performance = {
-      combinePlugins = {
-        enable = true;
-        # Exclude plugins that need to be standalone
-        standalonePlugins = [
-          "nvim-treesitter"
-          "nvim-lspconfig"
-          "conjure"
-        ];
-      };
+      combinePlugins.enable = true;
       byteCompileLua.enable = true;
     };
 
@@ -99,8 +91,8 @@ in
 
     clipboard = {
       register = "unnamedplus";
-      providers.wl-copy.enable = false; # Disable wayland
-      providers.xclip.enable = false; # Disable X11
+      providers.wl-copy.enable = false; # disable the Wayland provider
+      providers.xclip.enable = false; # disable the X11 provider
     };
 
     # Use OSC 52 for copy, but a native provider for paste. OSC 52 paste
@@ -150,9 +142,6 @@ in
           -- being clipped at the edge of narrow splits.
           virt_text_pos = "inline",
         },
-        signs = true,
-        underline = true,
-        update_in_insert = false,
         severity_sort = true,
         float = {
           border = "rounded",
@@ -215,70 +204,50 @@ in
     opts = {
       # basic settings
       guifont = "JetBrains Mono:h12";
-      linespace = 0;
-      encoding = "utf-8";
-      backspace = "indent,eol,start"; # backspace works on every char in insert mode
       completeopt = "menuone,noselect";
       history = 1000;
       scrollback = 100000; # maximum terminal scrollback retained by Neovim
       startofline = true;
-      errorbells = false;
-      visualbell = false;
-      autoread = true;
       signcolumn = "yes"; # always show signs (diagnostics, gitsigns)
 
       # display
       background = "dark";
       showmatch = true; # show matching brackets
-      scrolloff = 10; # always show 3 rows from edge of the screen
+      scrolloff = 10; # keep ten screen lines above and below the cursor
       synmaxcol = 500; # cap legacy syntax work on exceptionally long lines
       laststatus = 3; # use one global status line
       statusline = " %t %m%r%=%l:%c %P ";
-      list = false; # do not display white characters
-      foldenable = false;
-      foldlevel = 4; # limit folding to 4 levels
-      wrap = true; # do not wrap lines even if very long
-      eol = false; # show if there's no eol char
-      showbreak = "↪"; # character to show when line is broken
+      foldenable = true; # enable folding
+      foldlevel = 99; # keep all folds open by default
+      foldlevelstart = 99; # start newly opened buffers fully expanded
+      wrap = true; # wrap long lines at the window edge
+      showbreak = "↪"; # prefix for wrapped screen lines
       termguicolors = true;
 
-      # sidebar
-      number = false; # hide absolute line numbers
-      relativenumber = false; # hide relative line numbers
-      showcmd = true; # display command in bottom bar
-
       # search
-      incsearch = true; # starts searching as soon as typing, without enter needed
       ignorecase = true; # ignore letter case when searching
-      hlsearch = true; # highlight all matches for previous pattern
-      smartcase = true; # case insentive unless capitals used in search
+      smartcase = true; # match case when the search pattern contains capitals
       wildmode = "full:lastused";
 
-      # white characters
-      autoindent = true;
+      # indentation
       smartindent = true;
-      tabstop = 2; # 1 tab = 2 spaces
+      tabstop = 2; # display a tab as two columns
       shiftwidth = 0; # use tabstop value
-      shiftround = true; # use tabstop value
-      expandtab = true; # expand tab to spaces
+      shiftround = true; # round indent shifts to multiples of shiftwidth
+      expandtab = true; # insert spaces instead of tab characters
 
       # files
-      hidden = true; # show hidden files and term buffers
-      backup = false;
-      writebackup = false;
+      eol = false; # new buffers default to no final line ending
       swapfile = true; # preserve unsaved changes for crash recovery
-      modifiable = true;
       undofile = true;
       updatetime = 500; # write swap data and trigger CursorHold after 500ms
       timeoutlen = 500;
     };
 
     colorschemes.gruvbox = {
-      # TODO Pull colors from global scheme
       enable = true;
       settings = {
         contrast = "hard";
-        dim_inactive = false;
         palette_overrides = {
           dark0_hard = "#101414";
         };
