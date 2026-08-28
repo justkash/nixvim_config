@@ -219,7 +219,8 @@ in {
       showmatch = true; # show matching brackets
       scrolloff = 10; # always show 3 rows from edge of the screen
       synmaxcol = 0; # stop syntax highlight after x lines for performance
-      laststatus = 0; # never show status line
+      laststatus = 3; # use one global status line
+      statusline = " %t %m%r%=%l:%c %P ";
       list = false; # do not display white characters
       foldenable = false;
       foldlevel = 4; # limit folding to 4 levels
@@ -272,6 +273,10 @@ in {
           StatusLine.fg = activeUiTextColor;
           StatusLineNC.bg = separatorColor;
           StatusLineNC.fg = mutedUiTextColor;
+          StatusLineTerm.bg = separatorColor;
+          StatusLineTerm.fg = activeUiTextColor;
+          StatusLineTermNC.bg = separatorColor;
+          StatusLineTermNC.fg = mutedUiTextColor;
           TabLine.bg = separatorColor;
           TabLine.fg = mutedUiTextColor;
           TabLineFill.bg = separatorColor;
