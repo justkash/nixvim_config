@@ -84,7 +84,7 @@
           enable = true;
           settings = {
             nixd = {
-              nixpkgs.expr = "import <nixpkgs> {}";
+              nixpkgs.expr = "import ${pkgs.path} {}";
               formatting.command = [ "nixfmt" ];
             };
           };
@@ -136,6 +136,11 @@
   };
 
   extraPackages = with pkgs; [
+    fzf
+    ripgrep
+    fd
+    bat
+
     nixfmt
     clang-tools
     dotnet-sdk
