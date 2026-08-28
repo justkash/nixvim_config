@@ -214,7 +214,7 @@ in
       showmatch = true; # show matching brackets
       scrolloff = 10; # keep ten screen lines above and below the cursor
       synmaxcol = 500; # cap legacy syntax work on exceptionally long lines
-      laststatus = 3; # use one global status line
+      laststatus = 2; # status per window
       statusline = " %t %m%r%=%l:%c %P ";
       foldenable = true; # enable folding
       foldlevel = 99; # keep all folds open by default
