@@ -10,10 +10,25 @@ in {
   ];
 
   config = {
-    # defaultEditor = true;
-    # vimdiffAlias = true;
-    # withNodeJs = false;
-    # withRuby = false;
+    # Language-specific tools come from project dev shells. None of the
+    # configured plugins use Neovim's remote plugin providers.
+    withNodeJs = false;
+    withPerl = false;
+    withPython3 = false;
+    withRuby = false;
+    waylandSupport = false;
+
+    # Avoid plugin-declared build toolchains (GCC, Go, Node, full Git, etc.)
+    # being added to the editor closure. Required runtime tools are listed
+    # explicitly in extraPackages.
+    autowrapRuntimeDeps = false;
+    dependencies = {
+      gcc.enable = false;
+      git.enable = false;
+      go.enable = false;
+      nodejs.enable = false;
+      tree-sitter.enable = false;
+    };
 
     performance = {
       combinePlugins = {

@@ -67,9 +67,16 @@
           };
         };
         clojure_lsp.enable = true;
-        omnisharp.enable = true;
+        # These servers drag their associated SDK/compiler into the Neovim
+        # closure. Keep their configuration here, but resolve the executable
+        # from the active project's dev shell instead.
+        omnisharp = {
+          enable = true;
+          package = null;
+        };
         gopls = {
           enable = true;
+          package = null;
           settings = {
             gopls = {
               analyses = {
@@ -91,6 +98,7 @@
         };
         clangd = {
           enable = true;
+          package = null;
           cmd = [
             "clangd"
             "--background-index"
@@ -101,11 +109,15 @@
             "--fallback-style=llvm"
           ];
         };
-        jdtls.enable = true;
+        jdtls = {
+          enable = true;
+          package = null;
+        };
         rust_analyzer = {
           enable = true;
-          installCargo = true;
-          installRustc = true;
+          # Cargo, rustc and clippy are supplied by the project's dev shell.
+          installCargo = false;
+          installRustc = false;
           settings = {
             rust-analyzer = {
               checkOnSave = true;
@@ -117,7 +129,9 @@
         };
         hls = {
           enable = true;
-          installGhc = true;
+          package = null;
+          # Use the project GHC so HLS sees the same compiler and packages.
+          installGhc = false;
         };
         fennel_ls.enable = true;
         lua_ls = {
@@ -140,15 +154,6 @@
     ripgrep
     fd
     bat
-
-    nixfmt
-    clang-tools
-    dotnet-sdk
-    luajitPackages.fennel
-
-    # PureScript
-    purs-unstable
-    spago-unstable
-    purs-tidy-unstable
+    lazygit
   ];
 }

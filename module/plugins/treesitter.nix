@@ -2,13 +2,13 @@
   plugins.treesitter = {
     enable = true;
     folding.enable = true;
-    nixGrammars = false;
+    nixGrammars = true;
     settings = {
       auto_install = false;
       highlight.enable = true;
       indent.enable = true;
     };
-    package = pkgs.vimPlugins.nvim-treesitter.withPlugins (p: with p; [
+    grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
       bash
       c
       c_sharp
@@ -37,6 +37,6 @@
       markdown
       markdown_inline
       html
-    ]);
+    ];
   };
 }
