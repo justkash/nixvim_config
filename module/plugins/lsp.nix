@@ -161,6 +161,7 @@
     fd
     bat
     lazygit
+    nixfmt
   ];
 
   extraConfigLua = ''
