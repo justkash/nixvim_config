@@ -24,10 +24,28 @@
         };
 
         sources = [
-          { name = "nvim_lsp"; priority = 1000; }
-          { name = "luasnip"; priority = 750; }
-          { name = "buffer"; priority = 500; }
-          { name = "path"; priority = 250; }
+          {
+            name = "nvim_lsp";
+            priority = 1000;
+          }
+          {
+            name = "luasnip";
+            priority = 750;
+          }
+          {
+            name = "buffer";
+            priority = 500;
+            option.get_bufnrs.__raw = ''
+              function()
+                local bufnr = vim.api.nvim_get_current_buf()
+                return vim.b[bufnr].large_file and {} or { bufnr }
+              end
+            '';
+          }
+          {
+            name = "path";
+            priority = 250;
+          }
         ];
 
         window = {
@@ -37,7 +55,10 @@
       };
     };
 
-    luasnip.enable = true;
+    luasnip = {
+      enable = true;
+      lazyLoad.settings.event = "InsertEnter";
+    };
 
     cmp-nvim-lsp.enable = true;
     cmp-buffer.enable = true;
@@ -46,9 +67,12 @@
 
     lsp-signature = {
       enable = true;
+      lazyLoad.settings.event = "InsertEnter";
       settings = {
         bind = true;
+        floating_window = false;
         hint_enable = true;
+        hint_inline.__raw = ''function() return "inline" end'';
         handler_opts.border = "rounded";
       };
     };

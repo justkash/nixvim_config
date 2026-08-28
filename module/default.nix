@@ -3,7 +3,8 @@ let
   separatorColor = "#171919";
   activeUiTextColor = "#a89984";
   mutedUiTextColor = "#7c6f64";
-in {
+in
+{
   imports = [
     ./plugins
     ./keymaps.nix
@@ -45,6 +46,51 @@ in {
 
     luaLoader.enable = true;
 
+    # Keep recoverable swap files in Neovim's state directory and identify
+    # large files before file-backed plugins handle BufReadPre.
+    extraConfigLuaPre = lib.mkBefore ''
+      local swap_directory = vim.fn.stdpath("state") .. "/swap"
+      vim.fn.mkdir(swap_directory, "p")
+      vim.opt.directory = { swap_directory .. "//" }
+
+      vim.g.large_file_threshold = 1024 * 1024
+
+      local large_file_group = vim.api.nvim_create_augroup(
+        "nixvim_large_files",
+        { clear = true }
+      )
+
+      vim.api.nvim_create_autocmd("BufReadPre", {
+        group = large_file_group,
+        callback = function(args)
+          local filename = vim.api.nvim_buf_get_name(args.buf)
+          local stat = filename ~= "" and vim.uv.fs_stat(filename) or nil
+          local is_large = stat ~= nil
+            and stat.type == "file"
+            and stat.size > vim.g.large_file_threshold
+
+          vim.b[args.buf].large_file = is_large
+
+          if is_large then
+            vim.diagnostic.enable(false, { bufnr = args.buf })
+          end
+        end,
+      })
+
+      -- LSP setup may globally enable features after BufReadPre, so enforce
+      -- the large-file policy again as each client attaches.
+      vim.api.nvim_create_autocmd("LspAttach", {
+        group = large_file_group,
+        callback = function(args)
+          if not vim.b[args.buf].large_file then
+            return
+          end
+
+          vim.diagnostic.enable(false, { bufnr = args.buf })
+        end,
+      })
+    '';
+
     globals = {
       mapleader = "\\";
       maplocalleader = "\\";
@@ -54,7 +100,7 @@ in {
     clipboard = {
       register = "unnamedplus";
       providers.wl-copy.enable = false; # Disable wayland
-      providers.xclip.enable = false;   # Disable X11
+      providers.xclip.enable = false; # Disable X11
     };
 
     # Use OSC 52 for copy, but a native provider for paste. OSC 52 paste
@@ -162,39 +208,6 @@ in {
       })
       sync_ui_highlights()
 
-      -- fzf-lua: use documented setup options and rely on the picker defaults
-      -- to respect .gitignore from the current working directory.
-      local fzf_lua = require("fzf-lua")
-      fzf_lua.setup({
-        defaults = {
-          -- Populate quickfix without opening its window. Use <leader>qt to
-          -- show the list when it is useful.
-          copen = false,
-        },
-        winopts = {
-          fullscreen = true,
-          on_close = function()
-            vim.cmd("stopinsert")
-          end,
-        },
-        files = {
-          follow = true,
-        },
-        actions = {
-          files = {
-            [1] = true,
-            ["ctrl-q"] = {
-              prefix = "select-all+",
-              fn = fzf_lua.actions.file_sel_to_qf,
-            },
-            ["ctrl-l"] = {
-              prefix = "select-all+",
-              fn = fzf_lua.actions.file_sel_to_ll,
-            },
-          },
-        },
-      })
-
       -- editable-term.nvim
       require("editable-term").setup()
     '';
@@ -218,13 +231,13 @@ in {
       background = "dark";
       showmatch = true; # show matching brackets
       scrolloff = 10; # always show 3 rows from edge of the screen
-      synmaxcol = 0; # stop syntax highlight after x lines for performance
+      synmaxcol = 500; # cap legacy syntax work on exceptionally long lines
       laststatus = 3; # use one global status line
       statusline = " %t %m%r%=%l:%c %P ";
       list = false; # do not display white characters
       foldenable = false;
       foldlevel = 4; # limit folding to 4 levels
-      wrap = true; #do not wrap lines even if very long
+      wrap = true; # do not wrap lines even if very long
       eol = false; # show if there's no eol char
       showbreak = "↪"; # character to show when line is broken
       termguicolors = true;
@@ -253,14 +266,15 @@ in {
       hidden = true; # show hidden files and term buffers
       backup = false;
       writebackup = false;
-      swapfile = false;
+      swapfile = true; # preserve unsaved changes for crash recovery
       modifiable = true;
       undofile = true;
-      updatetime = 500; # waits 1s of no action for swap file write
+      updatetime = 500; # write swap data and trigger CursorHold after 500ms
       timeoutlen = 500;
     };
 
-    colorschemes.gruvbox = { # TODO Pull colors from global scheme
+    colorschemes.gruvbox = {
+      # TODO Pull colors from global scheme
       enable = true;
       settings = {
         contrast = "hard";

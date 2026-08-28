@@ -2,7 +2,13 @@
   plugins = {
     lsp = {
       enable = true;
-      inlayHints = true;
+      # Current-line inlay hints are requested below instead of enabling the
+      # native whole-buffer renderer.
+      inlayHints = false;
+      lazyLoad.settings.event = [
+        "BufReadPre"
+        "BufNewFile"
+      ];
 
       keymaps = {
         silent = true;
@@ -156,4 +162,164 @@
     bat
     lazygit
   ];
+
+  extraConfigLua = ''
+    -- Request and render inlay hints only for the current line. This avoids
+    -- decorating and repeatedly refreshing every visible line in a buffer.
+    local inlay_hint_namespace = vim.api.nvim_create_namespace(
+      "nixvim_current_line_inlay_hints"
+    )
+    local inlay_hint_generation = {}
+
+    local function clear_inlay_hints(bufnr)
+      if not vim.api.nvim_buf_is_valid(bufnr) then
+        return
+      end
+
+      inlay_hint_generation[bufnr] = (inlay_hint_generation[bufnr] or 0) + 1
+      vim.api.nvim_buf_clear_namespace(
+        bufnr,
+        inlay_hint_namespace,
+        0,
+        -1
+      )
+    end
+
+    local function render_inlay_hints(bufnr)
+      clear_inlay_hints(bufnr)
+
+      if vim.b[bufnr].large_file
+        or vim.api.nvim_get_current_buf() ~= bufnr
+        or vim.bo[bufnr].buftype ~= ""
+      then
+        return
+      end
+
+      local row = vim.api.nvim_win_get_cursor(0)[1] - 1
+      local changedtick = vim.api.nvim_buf_get_changedtick(bufnr)
+      local generation = inlay_hint_generation[bufnr]
+      local line = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, false)[1]
+      if line == nil then
+        return
+      end
+
+      for _, client in ipairs(vim.lsp.get_clients({
+        bufnr = bufnr,
+        method = "textDocument/inlayHint",
+      })) do
+        local hint_client = client
+        local range_end
+        if row == vim.api.nvim_buf_line_count(bufnr) - 1
+          and not vim.bo[bufnr].endofline
+        then
+          range_end = {
+            line = row,
+            character = vim.lsp.util.character_offset(
+              bufnr,
+              row,
+              #line,
+              hint_client.offset_encoding
+            ),
+          }
+        else
+          range_end = { line = row + 1, character = 0 }
+        end
+
+        hint_client:request("textDocument/inlayHint", {
+          textDocument = { uri = vim.uri_from_bufnr(bufnr) },
+          range = {
+            start = { line = row, character = 0 },
+            ["end"] = range_end,
+          },
+        }, function(err, hints)
+          if err
+            or not vim.api.nvim_buf_is_valid(bufnr)
+            or vim.api.nvim_buf_get_changedtick(bufnr) ~= changedtick
+            or inlay_hint_generation[bufnr] ~= generation
+          then
+            return
+          end
+
+          for _, hint in ipairs(hints or {}) do
+            if hint.position.line == row then
+              local text
+              if type(hint.label) == "string" then
+                text = hint.label
+              else
+                local label_parts = {}
+                for _, part in ipairs(hint.label) do
+                  label_parts[#label_parts + 1] = part.value
+                end
+                text = table.concat(label_parts)
+              end
+
+              local ok, column = pcall(
+                vim.str_byteindex,
+                line,
+                hint_client.offset_encoding,
+                hint.position.character,
+                false
+              )
+
+              if ok then
+                local virtual_text = {}
+                if hint.paddingLeft then
+                  virtual_text[#virtual_text + 1] = { " " }
+                end
+                virtual_text[#virtual_text + 1] = { text, "LspInlayHint" }
+                if hint.paddingRight then
+                  virtual_text[#virtual_text + 1] = { " " }
+                end
+
+                vim.api.nvim_buf_set_extmark(
+                  bufnr,
+                  inlay_hint_namespace,
+                  row,
+                  column,
+                  {
+                    strict = false,
+                    virt_text = virtual_text,
+                    virt_text_pos = "inline",
+                  }
+                )
+              end
+            end
+          end
+        end, bufnr)
+      end
+    end
+
+    local inlay_hint_group = vim.api.nvim_create_augroup(
+      "nixvim_current_line_inlay_hints",
+      { clear = true }
+    )
+
+    vim.api.nvim_create_autocmd({
+      "CursorMoved",
+      "CursorMovedI",
+      "InsertLeave",
+      "TextChanged",
+      "TextChangedI",
+    }, {
+      group = inlay_hint_group,
+      callback = function(args)
+        clear_inlay_hints(args.buf)
+      end,
+    })
+
+    vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI", "LspAttach" }, {
+      group = inlay_hint_group,
+      callback = function(args)
+        render_inlay_hints(args.buf)
+      end,
+    })
+
+    vim.api.nvim_create_autocmd({ "LspDetach", "BufWipeout" }, {
+      group = inlay_hint_group,
+      callback = function(args)
+        clear_inlay_hints(args.buf)
+        inlay_hint_generation[args.buf] = nil
+      end,
+    })
+  '';
 }

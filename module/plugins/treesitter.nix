@@ -1,12 +1,25 @@
 { pkgs, ... }: {
   plugins.treesitter = {
     enable = true;
-    folding.enable = true;
+    lazyLoad.settings.event = [
+      "BufReadPre"
+      "BufNewFile"
+    ];
+    folding = {
+      enable = true;
+      disable.__raw = "function(_, bufnr) return vim.b[bufnr].large_file == true end";
+    };
+    highlight = {
+      enable = true;
+      disable.__raw = "function(_, bufnr) return vim.b[bufnr].large_file == true end";
+    };
+    indent = {
+      enable = true;
+      disable.__raw = "function(_, bufnr) return vim.b[bufnr].large_file == true end";
+    };
     nixGrammars = true;
     settings = {
       auto_install = false;
-      highlight.enable = true;
-      indent.enable = true;
     };
     grammarPackages = with pkgs.vimPlugins.nvim-treesitter.builtGrammars; [
       bash
