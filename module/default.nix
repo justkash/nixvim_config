@@ -205,7 +205,6 @@ in
       # basic settings
       guifont = "JetBrains Mono:h12";
       completeopt = "menuone,noselect";
-      history = 1000;
       scrollback = 100000; # maximum terminal scrollback retained by Neovim
       startofline = true;
       signcolumn = "yes"; # always show signs (diagnostics, gitsigns)
