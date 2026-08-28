@@ -1,4 +1,9 @@
-{ pkgs, lib, ... }: {
+{ pkgs, lib, ... }:
+let
+  separatorColor = "#171919";
+  activeUiTextColor = "#a89984";
+  mutedUiTextColor = "#7c6f64";
+in {
   imports = [
     ./plugins
     ./keymaps.nix
@@ -97,7 +102,7 @@
         "CursorLineFold",
       }
 
-      local function sync_gutter_background()
+      local function sync_ui_highlights()
         local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
 
         for _, group in ipairs(gutter_groups) do
@@ -105,12 +110,17 @@
           hl.bg = normal.bg
           vim.api.nvim_set_hl(0, group, hl)
         end
+
+        vim.api.nvim_set_hl(0, "WinSeparator", {
+          fg = "${separatorColor}",
+          bg = "#101414",
+        })
       end
 
       vim.api.nvim_create_autocmd("ColorScheme", {
-        callback = sync_gutter_background,
+        callback = sync_ui_highlights,
       })
-      sync_gutter_background()
+      sync_ui_highlights()
 
       -- fzf-lua: use documented setup options and rely on the picker defaults
       -- to respect .gitignore from the current working directory.
@@ -218,9 +228,16 @@
           dark0_hard = "#101414";
         };
         overrides = {
-          status_line.fg = "#111515";
-          tab_line_fill.bg = "#111515";
-          tab_line_sel.bg = "#192020";
+          StatusLine.bg = separatorColor;
+          StatusLine.fg = activeUiTextColor;
+          StatusLineNC.bg = separatorColor;
+          StatusLineNC.fg = mutedUiTextColor;
+          TabLine.bg = separatorColor;
+          TabLine.fg = mutedUiTextColor;
+          TabLineFill.bg = separatorColor;
+          TabLineFill.fg = mutedUiTextColor;
+          TabLineSel.bg = separatorColor;
+          TabLineSel.fg = activeUiTextColor;
         };
       };
     };
