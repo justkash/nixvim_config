@@ -7,6 +7,7 @@ in
 {
   imports = [
     ./plugins
+    ./project-lsp.nix
     ./keymaps.nix
   ];
 
