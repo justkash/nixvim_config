@@ -175,6 +175,10 @@ in
         "FoldColumn",
         "CursorLineSign",
         "CursorLineFold",
+        "DiagnosticSignError",
+        "DiagnosticSignWarn",
+        "DiagnosticSignHint",
+        "DiagnosticSignInfo",
       }
 
       local function sync_ui_highlights()
