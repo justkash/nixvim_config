@@ -165,6 +165,50 @@
   ];
 
   extraConfigLua = ''
+    -- purescript-language-server serializes absent WorkspaceEdit fields as
+    -- JSON null. Neovim decodes null as the truthy vim.NIL userdata, so its
+    -- workspace-edit handler can mistake it for an edits table and call
+    -- ipairs() on it. Normalize nullable fields at the shared boundary so
+    -- rename and code-action edits both behave correctly.
+    local apply_workspace_edit = vim.lsp.util.apply_workspace_edit
+    vim.lsp.util.apply_workspace_edit = function(
+      workspace_edit,
+      position_encoding
+    )
+      if workspace_edit == vim.NIL then
+        return
+      end
+
+      if type(workspace_edit) == "table" then
+        if workspace_edit.documentChanges == vim.NIL then
+          workspace_edit.documentChanges = nil
+        end
+        if workspace_edit.changes == vim.NIL then
+          workspace_edit.changes = nil
+        end
+        if workspace_edit.changeAnnotations == vim.NIL then
+          workspace_edit.changeAnnotations = nil
+        end
+      end
+
+      return apply_workspace_edit(workspace_edit, position_encoding)
+    end
+
+    local rename_handler = vim.lsp.handlers["textDocument/rename"]
+    vim.lsp.handlers["textDocument/rename"] = function(err, result, ctx, config)
+      if result == vim.NIL then
+        result = nil
+      elseif type(result) == "table"
+        and (result.documentChanges == nil
+          or result.documentChanges == vim.NIL)
+        and (result.changes == nil or result.changes == vim.NIL)
+      then
+        result = nil
+      end
+
+      return rename_handler(err, result, ctx, config)
+    end
+
     -- Request and render inlay hints only for the current line. This avoids
     -- decorating and repeatedly refreshing every visible line in a buffer.
     local inlay_hint_namespace = vim.api.nvim_create_namespace(
