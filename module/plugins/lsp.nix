@@ -5,10 +5,6 @@
       # Disable Nixvim's whole-buffer renderer; the implementation below
       # requests hints only for the current line.
       inlayHints = false;
-      lazyLoad.settings.event = [
-        "BufReadPre"
-        "BufNewFile"
-      ];
 
       keymaps = {
         silent = true;
