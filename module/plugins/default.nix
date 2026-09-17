@@ -14,6 +14,9 @@
         {
           __unkeyed-1 = "fzf-lua";
           cmd = "FzfLua";
+          # Load after the UI is drawn so plugins that detect pickers with
+          # require() (obsessions) find fzf-lua without a prior fzf-lua call.
+          event = "DeferredUIEnter";
           after = ''
             function()
               local fzf_lua = require("fzf-lua")
