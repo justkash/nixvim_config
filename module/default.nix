@@ -39,13 +39,8 @@ in
 
     luaLoader.enable = true;
 
-    # Keep recoverable swap files in Neovim's state directory and identify
-    # large files before file-backed plugins handle BufReadPre.
+    # Identify large files before file-backed plugins handle BufReadPre.
     extraConfigLuaPre = lib.mkBefore ''
-      local swap_directory = vim.fn.stdpath("state") .. "/swap"
-      vim.fn.mkdir(swap_directory, "p")
-      vim.opt.directory = { swap_directory .. "//" }
-
       vim.g.large_file_threshold = 1024 * 1024
 
       local large_file_group = vim.api.nvim_create_augroup(
@@ -444,9 +439,9 @@ in
 
       # files
       eol = false; # new buffers default to no final line ending
-      swapfile = true; # preserve unsaved changes for crash recovery
+      swapfile = false; # disabled; see README for the consequences
       undofile = true;
-      updatetime = 500; # write swap data and trigger CursorHold after 500ms
+      updatetime = 500; # trigger CursorHold after 500ms
       timeoutlen = 500;
     };
 

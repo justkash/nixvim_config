@@ -1,11 +1,18 @@
-# TODO
-[x] Change (darken) color for buffer separator
-[] Fix <ESC> doesn't work correctly within Lazy Git
-[] Update <Esc> within Terminal sessions since it's used in many places
-[] Change border from rounded to straight
-[] Pull out the color scheme so that it's a provided dependency from Nix Darwin
-[] Fix sign-define or sign_define() is deprecated; use vim.diagnostic.config() instead.
-[] Fix background color of LSP icons so that it matches the background dark color
-[] Add shortcut for quickly syncing the terminal directory to CWD
-[] Is there a way to quickly jump to Git conflicts?
-[] Remove .gitignore files from the rg search results
+# Decisions
+
+## Swap files are disabled
+
+Neovim swap files are turned off (`swapfile = false` in `module/default.nix`).
+This has the following consequences:
+
+- Unsaved changes are lost if Neovim, the terminal, or the machine crashes.
+  `:recover` has nothing to restore, so only what has been written to disk
+  survives.
+- Opening a file that is already open in another Neovim instance no longer
+  shows the `E325: ATTENTION` warning. Neovim still warns on `:w` if the file
+  changed on disk after it was read.
+- Persistent undo (`undofile = true`) is unaffected, but its history is saved
+  on write, so it cannot recover unsaved edits either.
+- No swap files are written to Neovim's state directory
+  (`~/.local/state/nvim/swap/` by default). Swap files left there by earlier
+  sessions are no longer used and can be deleted.
