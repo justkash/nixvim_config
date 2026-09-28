@@ -15,16 +15,22 @@
       url = "github:justkash/obsessions";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nvimMada = {
+      url = "github:justkash/mada";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixvim, purescript-overlay, nvimObsessions }: 
+  outputs = { self, nixpkgs, nixvim, purescript-overlay, nvimObsessions, nvimMada }:
   let
     supportedSystems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-    module = {
+    module = { pkgs, ... }: {
       imports = [
         (import ./module)
         nvimObsessions.nixvimModules.default
+        nvimMada.nixvimModules.default
       ];
+      extraPackages = [ nvimMada.packages.${pkgs.stdenv.hostPlatform.system}.termaid ];
     };
     forEachSupportedSystem = f: nixpkgs.lib.genAttrs supportedSystems (system: 
       let

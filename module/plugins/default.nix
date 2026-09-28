@@ -159,6 +159,8 @@
     restoreLastSession = true;
   };
 
+  programs.mada.enable = true;
+
   extraPlugins = [
     {
       plugin = pkgs.callPackage ./fzf-lua.nix { };
