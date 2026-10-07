@@ -37,6 +37,7 @@
       heex
       eex
       rust
+      roc
       clojure
       python
       go
