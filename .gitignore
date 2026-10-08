@@ -1,2 +1,20 @@
-result
 TODO*
+
+# vcs
+.pijul/
+.git/
+
+# nix
+result
+result-*
+
+# ai
+.claude/
+.codex/
+
+# misc
+.direnv/
+.envrc
+
+# os
+.DS_Store
