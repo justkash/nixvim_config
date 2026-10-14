@@ -134,6 +134,7 @@ in
       -- Unlike inline virtual text, these decorations never shift the source
       -- code horizontally.
       local diagnostic_virtual_line_namespaces = {}
+      local diagnostic_virtual_line_pending = {}
       local diagnostic_virtual_line_highlights = {
         [vim.diagnostic.severity.ERROR] = "DiagnosticVirtualLinesError",
         [vim.diagnostic.severity.WARN] = "DiagnosticVirtualLinesWarn",
@@ -199,6 +200,47 @@ in
 
       vim.diagnostic.handlers.virtual_lines_above = {
         show = function(namespace, bufnr, diagnostics, opts)
+          if not vim.api.nvim_buf_is_valid(bufnr) then
+            return
+          end
+
+          -- LSP diagnostics can arrive before a buffer loads, when valid file
+          -- rows do not exist in the buffer yet. Redraw from the current cache
+          -- on load, and skip rows outside the loaded buffer below.
+          if not vim.api.nvim_buf_is_loaded(bufnr) then
+            local pending = diagnostic_virtual_line_pending[bufnr]
+            if not pending then
+              pending = {}
+              diagnostic_virtual_line_pending[bufnr] = pending
+              vim.api.nvim_create_autocmd(
+                { "BufReadPost", "BufNewFile", "BufWipeout" },
+                {
+                  buffer = bufnr,
+                  once = true,
+                  callback = function(args)
+                    vim.api.nvim_del_autocmd(args.id)
+                    diagnostic_virtual_line_pending[bufnr] = nil
+                    if args.event ~= "BufWipeout"
+                      and vim.api.nvim_buf_is_valid(bufnr)
+                      and vim.api.nvim_buf_is_loaded(bufnr)
+                    then
+                      for pending_namespace, pending_opts in pairs(pending) do
+                        vim.diagnostic.show(
+                          pending_namespace,
+                          bufnr,
+                          nil,
+                          pending_opts
+                        )
+                      end
+                    end
+                  end,
+                }
+              )
+            end
+            pending[namespace] = opts
+            return
+          end
+
           local extmark_namespace = diagnostic_virtual_line_namespaces[namespace]
           if not extmark_namespace then
             extmark_namespace = vim.api.nvim_create_namespace(
@@ -220,27 +262,30 @@ in
             handler_options.source
           )
           local diagnostics_by_line = {}
+          local line_count = vim.api.nvim_buf_line_count(bufnr)
           local tabstop = vim.bo[bufnr].tabstop
 
           for _, diagnostic in ipairs(diagnostics) do
-            local message = handler_options.format
-                and handler_options.format(diagnostic)
-              or diagnostic.message
+            if diagnostic.lnum >= 0 and diagnostic.lnum < line_count then
+              local message = handler_options.format
+                  and handler_options.format(diagnostic)
+                or diagnostic.message
 
-            if message then
-              local message_lines = diagnostic_message_lines(message)
+              if message then
+                local message_lines = diagnostic_message_lines(message)
 
-              if #message_lines > 0 then
-                local line_diagnostics = diagnostics_by_line[diagnostic.lnum]
-                if not line_diagnostics then
-                  line_diagnostics = {}
-                  diagnostics_by_line[diagnostic.lnum] = line_diagnostics
+                if #message_lines > 0 then
+                  local line_diagnostics = diagnostics_by_line[diagnostic.lnum]
+                  if not line_diagnostics then
+                    line_diagnostics = {}
+                    diagnostics_by_line[diagnostic.lnum] = line_diagnostics
+                  end
+                  line_diagnostics[#line_diagnostics + 1] = {
+                    diagnostic = diagnostic,
+                    message_lines = message_lines,
+                    source = include_source and diagnostic.source or nil,
+                  }
                 end
-                line_diagnostics[#line_diagnostics + 1] = {
-                  diagnostic = diagnostic,
-                  message_lines = message_lines,
-                  source = include_source and diagnostic.source or nil,
-                }
               end
             end
           end
@@ -320,7 +365,12 @@ in
           end
         end,
         hide = function(namespace, bufnr)
+          local pending = diagnostic_virtual_line_pending[bufnr]
+          if pending then
+            pending[namespace] = nil
+          end
           local extmark_namespace = diagnostic_virtual_line_namespaces[namespace]
+          -- Unloaded buffers can retain extmarks until they load again.
           if extmark_namespace and vim.api.nvim_buf_is_valid(bufnr) then
             vim.api.nvim_buf_clear_namespace(
               bufnr,
