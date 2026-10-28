@@ -1,5 +1,37 @@
 # Decisions
 
+## EasyOnMe theme
+
+EasyOnMe is derived from Gruvbox. Use `\tt` in normal mode to switch between
+dark and light. Each new Neovim session starts dark, and the selected theme
+lasts for that session. Light mode uses Gruvbox's default contrast with a warm
+ivory `#f7f1df` background, brown text, cream surfaces and selections, and
+coordinated earthy syntax, diagnostic, and terminal accents. Set it with
+`:colorscheme easyonme`.
+
+Edit the dark and light palette overrides in `colors/easyonme.nix` to
+customize their colors. Neovim highlight groups are customized in
+`module/theme.nix`.
+
+The flake exports both reusable palettes as `lib.colors.easyonme`. Another Nix
+configuration that uses this flake as `inputs.nvim` can read individual values
+or the complete palette:
+
+```nix
+inputs.nvim.lib.colors.easyonme.light.background
+inputs.nvim.lib.colors.easyonme.dark.palette.dark0_hard
+```
+
+For generated files, encode the palette as JSON and write it to the store:
+
+```nix
+pkgs.writeText "easyonme-colors.json"
+  (builtins.toJSON inputs.nvim.lib.colors.easyonme)
+```
+
+A plain Nix attribute set is sufficient for sharing values during evaluation;
+use a derivation when another program needs a generated file.
+
 ## Swap files are disabled
 
 Neovim swap files are turned off (`swapfile = false` in `module/default.nix`).

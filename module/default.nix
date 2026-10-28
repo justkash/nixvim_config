@@ -1,14 +1,9 @@
-{ pkgs, lib, ... }:
-let
-  separatorColor = "#171919";
-  activeUiTextColor = "#a89984";
-  mutedUiTextColor = "#7c6f64";
-in
-{
+{ pkgs, lib, ... }: {
   imports = [
     ./plugins
     ./project-lsp.nix
     ./keymaps.nix
+    ./theme.nix
   ];
 
   config = {
@@ -416,39 +411,6 @@ in
         end
       end, { desc = "Check LSP clients attached to current buffer" })
 
-      local gutter_groups = {
-        "SignColumn",
-        "LineNr",
-        "CursorLineNr",
-        "FoldColumn",
-        "CursorLineSign",
-        "CursorLineFold",
-        "DiagnosticSignError",
-        "DiagnosticSignWarn",
-        "DiagnosticSignHint",
-        "DiagnosticSignInfo",
-      }
-
-      local function sync_ui_highlights()
-        local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
-
-        for _, group in ipairs(gutter_groups) do
-          local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
-          hl.bg = normal.bg
-          vim.api.nvim_set_hl(0, group, hl)
-        end
-
-        vim.api.nvim_set_hl(0, "WinSeparator", {
-          fg = "${separatorColor}",
-          bg = "#101414",
-        })
-      end
-
-      vim.api.nvim_create_autocmd("ColorScheme", {
-        callback = sync_ui_highlights,
-      })
-      sync_ui_highlights()
-
       -- editable-term.nvim
       require("editable-term").setup()
     '';
@@ -462,7 +424,6 @@ in
       signcolumn = "yes"; # always show signs (diagnostics, gitsigns)
 
       # display
-      background = "dark";
       showmatch = true; # show matching brackets
       scrolloff = 10; # keep ten screen lines above and below the cursor
       synmaxcol = 500; # cap legacy syntax work on exceptionally long lines
@@ -493,32 +454,6 @@ in
       undofile = true;
       updatetime = 500; # trigger CursorHold after 500ms
       timeoutlen = 500;
-    };
-
-    colorschemes.gruvbox = {
-      enable = true;
-      settings = {
-        contrast = "hard";
-        palette_overrides = {
-          dark0_hard = "#101414";
-        };
-        overrides = {
-          StatusLine.bg = separatorColor;
-          StatusLine.fg = activeUiTextColor;
-          StatusLineNC.bg = separatorColor;
-          StatusLineNC.fg = mutedUiTextColor;
-          StatusLineTerm.bg = separatorColor;
-          StatusLineTerm.fg = activeUiTextColor;
-          StatusLineTermNC.bg = separatorColor;
-          StatusLineTermNC.fg = mutedUiTextColor;
-          TabLine.bg = separatorColor;
-          TabLine.fg = mutedUiTextColor;
-          TabLineFill.bg = separatorColor;
-          TabLineFill.fg = mutedUiTextColor;
-          TabLineSel.bg = separatorColor;
-          TabLineSel.fg = activeUiTextColor;
-        };
-      };
     };
   };
 }

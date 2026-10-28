@@ -41,6 +41,7 @@
         nvim = nixvim.legacyPackages.${system}.makeNixvimWithModule { inherit pkgs module; };
       in f { inherit nvim; });
   in {
+    lib.colors.easyonme = import ./colors/easyonme.nix;
     overlays.default = final: prev: { nvim = self.packages.${final.stdenv.hostPlatform.system}.nvim; };
     packages = forEachSupportedSystem ({ nvim }: {
       inherit nvim;

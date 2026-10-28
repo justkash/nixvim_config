@@ -1,5 +1,20 @@
 { ... }: {
   keymaps = [
+    # Theme
+    {
+      mode = "n";
+      key = "<leader>tt";
+      action.__raw = ''
+        function()
+          vim.o.background = vim.o.background == "dark" and "light" or "dark"
+        end
+      '';
+      options = {
+        silent = true;
+        desc = "Toggle light/dark theme";
+      };
+    }
+
     # Diagnostics
     {
       mode = "n";
