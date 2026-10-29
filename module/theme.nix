@@ -1,86 +1,149 @@
 { lib, ... }:
 let
   colors = import ../colors/easyonme.nix;
-  light = colors.light;
-  lightUi = light.ui;
-  lightHighlight = bg: {
-    fg = lightUi.activeText;
-    inherit bg;
-  };
-  lightError = {
-    fg = light.red;
-    bg = light.palette.light_red;
-    reverse = false;
-    bold = true;
-  };
-  variants = {
-    dark = {
-      contrast = "hard";
-      palette_overrides = colors.dark.palette;
-      overrides = {
-        StatusLine.bg = colors.dark.ui.separator;
-        StatusLine.fg = colors.dark.ui.activeText;
-        StatusLineNC.bg = colors.dark.ui.separator;
-        StatusLineNC.fg = colors.dark.ui.mutedText;
-        StatusLineTerm.bg = colors.dark.ui.separator;
-        StatusLineTerm.fg = colors.dark.ui.activeText;
-        StatusLineTermNC.bg = colors.dark.ui.separator;
-        StatusLineTermNC.fg = colors.dark.ui.mutedText;
-        TabLine.bg = colors.dark.ui.separator;
-        TabLine.fg = colors.dark.ui.mutedText;
-        TabLineFill.bg = colors.dark.ui.separator;
-        TabLineFill.fg = colors.dark.ui.mutedText;
-        TabLineSel.bg = colors.dark.ui.separator;
-        TabLineSel.fg = colors.dark.ui.activeText;
+  mkVariant = name: mode:
+    let
+      isDark = name == "dark";
+      ui = mode.ui;
+      highlight = bg: { fg = ui.activeText; inherit bg; reverse = false; };
+      selected = { fg = ui.selectionText; bg = ui.selection; reverse = false; };
+      border = { fg = ui.border; bg = mode.background; };
+      picker = highlight mode.background;
+      title = picker // { bold = true; };
+      muted = { fg = ui.mutedText; bg = mode.background; };
+      status = highlight (if isDark then ui.separator else ui.selection);
+      statusMuted = {
+        fg = ui.mutedText;
+        bg = if isDark then ui.separator else ui.surface;
       };
-    };
-    light = {
-      contrast = "";
-      palette_overrides = colors.light.palette;
+      diffBackground = kind:
+        mode.palette.${if isDark then "dark_${kind}_hard" else "light_${kind}"};
+    in {
+      contrast = if isDark then "hard" else "";
+      palette_overrides = mode.palette;
       overrides = {
-        LineNr.fg = lightUi.mutedText;
-        BlinkCmpGhostText.fg = lightUi.mutedText;
-        NonText.fg = lightUi.whitespace;
-        Whitespace.fg = lightUi.whitespace;
+        Cursor = { fg = mode.background; bg = ui.cursor; reverse = false; };
+        lCursor.link = "Cursor";
+        TermCursor.link = "Cursor";
+        TermCursorNC = { fg = mode.background; bg = ui.mutedText; reverse = false; };
 
-        NormalFloat = lightHighlight lightUi.surface;
-        FloatBorder = { fg = lightUi.separator; bg = lightUi.surface; };
-        FloatTitle = lightHighlight lightUi.surface // { bold = true; };
+        LineNr.fg = ui.mutedText;
+        BlinkCmpGhostText.fg = ui.mutedText;
+        NonText.fg = ui.whitespace;
+        Whitespace.fg = ui.whitespace;
+        CursorLine.bg = ui.surface;
+        ColorColumn.bg = ui.surface;
+        Folded = { fg = ui.mutedText; bg = ui.surface; };
 
-        StatusLine = lightHighlight lightUi.selection;
-        StatusLineTerm = lightHighlight lightUi.selection;
-        StatusLineNC = { fg = lightUi.mutedText; bg = lightUi.surface; };
-        StatusLineTermNC = { fg = lightUi.mutedText; bg = lightUi.surface; };
-        TabLineFill = { fg = lightUi.mutedText; bg = lightUi.surface; };
-        TabLineSel = lightHighlight lightUi.selection // { bold = true; };
-        WinSeparator = { fg = lightUi.separator; bg = light.background; };
+        NormalFloat = highlight ui.surface;
+        # Border cells share the buffer background outside rounded corners.
+        FloatBorder = border;
+        FloatTitle = title;
+        # Buffer dividers stay subtle; popup borders use the stronger ui.border.
+        WinSeparator = { fg = ui.separator; bg = mode.background; };
 
-        Pmenu = lightHighlight lightUi.surface;
-        PmenuSel = lightHighlight lightUi.selection // { bold = true; };
-        PmenuSbar.bg = lightUi.selection;
-        PmenuThumb.bg = lightUi.separator;
-        WildMenu = lightHighlight lightUi.selection // { bold = true; };
+        StatusLine = status;
+        StatusLineTerm = status;
+        StatusLineNC = statusMuted;
+        StatusLineTermNC = statusMuted;
+        TabLine = statusMuted;
+        TabLineFill = statusMuted;
+        TabLineSel = status // { bold = true; };
 
-        Visual = lightHighlight lightUi.selection // { reverse = false; };
-        MatchParen = lightHighlight lightUi.selection // { bold = true; };
-        Search = lightHighlight lightUi.search // { reverse = false; };
-        IncSearch = lightHighlight lightUi.searchCurrent // { reverse = false; };
-        Todo = lightHighlight lightUi.search // { reverse = false; bold = true; };
-        DiffText = lightHighlight lightUi.search // { reverse = false; };
-        DiffAdd = lightHighlight light.palette.light_green;
-        DiffDelete = lightHighlight light.palette.light_red;
-        DiffChange = lightHighlight light.palette.light_aqua;
+        Pmenu = highlight ui.surface;
+        PmenuSel = selected // { bold = true; };
+        PmenuSbar.bg = ui.surface;
+        PmenuThumb.bg = ui.border;
+        WildMenu = selected // { bold = true; };
 
-        Error = lightError;
-        ErrorMsg = lightError;
-        WarningMsg.fg = light.yellow;
+        Visual = selected;
+        MatchParen = selected // { bold = true; };
+        QuickFixLine = selected;
+        Search = highlight ui.search;
+        IncSearch = highlight ui.searchCurrent;
+        CurSearch = highlight ui.searchCurrent;
+        Todo = highlight ui.search // { bold = true; };
+        DiffText = highlight ui.search;
+        DiffAdd = highlight (diffBackground "green");
+        DiffDelete = highlight (diffBackground "red");
+        DiffChange = highlight (diffBackground "aqua");
+
+        WarningMsg.fg = mode.yellow;
         DiagnosticFloatingWarn.link = "DiagnosticWarn";
-      };
+
+        # fzf content and opaque border cells must agree with the editor,
+        # including compact pickers opened by obsessions.
+        FzfLuaNormal = picker;
+        FzfLuaBorder = border;
+        FzfLuaTitle = title;
+        FzfLuaTitleFlags = title;
+        FzfLuaHelpNormal = picker;
+        FzfLuaHelpBorder = border;
+        FzfLuaPreviewNormal = picker;
+        FzfLuaPreviewBorder = border;
+        FzfLuaPreviewTitle = title;
+        FzfLuaCursor.link = "Cursor";
+        FzfLuaCursorLine = selected;
+        FzfLuaCursorLineNr = selected;
+        FzfLuaSearch.link = "IncSearch";
+        FzfLuaScrollBorderEmpty = border;
+        FzfLuaScrollBorderFull = { fg = ui.match; bg = mode.background; };
+        FzfLuaScrollFloatEmpty.bg = ui.surface;
+        FzfLuaScrollFloatFull.bg = ui.border;
+        FzfLuaDirIcon.fg = mode.blue;
+        FzfLuaDirPart = muted;
+        FzfLuaFilePart = picker;
+
+        FzfLuaFzfNormal = picker;
+        FzfLuaFzfCursorLine = selected;
+        FzfLuaFzfMatch.fg = ui.match;
+        FzfLuaFzfBorder = border;
+        FzfLuaFzfScrollbar = border;
+        FzfLuaFzfSeparator = border;
+        FzfLuaFzfGutter = picker;
+        FzfLuaFzfHeader = picker;
+        FzfLuaFzfInfo = muted;
+        FzfLuaFzfPointer.fg = ui.match;
+        FzfLuaFzfMarker.fg = ui.match;
+        FzfLuaFzfSpinner.fg = ui.match;
+        FzfLuaFzfPrompt.fg = ui.match;
+        FzfLuaFzfQuery = picker;
+
+        # These groups become ANSI colors independently of fzf_colors.
+        FzfLuaHeaderBind.fg = mode.blue;
+        FzfLuaHeaderText.fg = ui.mutedText;
+        FzfLuaPathLineNr.fg = ui.mutedText;
+        FzfLuaPathColNr.fg = ui.match;
+        FzfLuaBufNr.fg = ui.mutedText;
+        FzfLuaBufId.fg = ui.mutedText;
+        FzfLuaBufName.fg = ui.activeText;
+        FzfLuaBufLineNr.fg = ui.mutedText;
+        FzfLuaBufFlagCur.fg = mode.green;
+        FzfLuaBufFlagAlt.fg = ui.match;
+        FzfLuaLivePrompt.fg = ui.match;
+        FzfLuaLiveSym.fg = ui.match;
+        FzfLuaTabTitle = { fg = ui.activeText; bold = true; };
+        FzfLuaTabMarker = { fg = ui.match; bold = true; };
+      } // (if isDark then {} else {
+        Error = {
+          fg = mode.red;
+          bg = mode.palette.light_red;
+          reverse = false;
+          bold = true;
+        };
+        ErrorMsg = {
+          fg = mode.red;
+          bg = mode.palette.light_red;
+          reverse = false;
+          bold = true;
+        };
+      });
     };
-  };
+  variants = builtins.mapAttrs mkVariant colors;
 in
 {
   opts.background = "dark";
+  opts.guicursor = "n-v-c-sm:block-Cursor/lCursor,i-ci-ve:ver25-Cursor/lCursor,r-cr:hor20-Cursor/lCursor,o:hor50-Cursor/lCursor,a:blinkwait700-blinkoff400-blinkon250,sm:blinkwait175-blinkoff150-blinkon175,t:block-blinkon500-blinkoff500-TermCursor";
   colorscheme = "easyonme";
 
   extraFiles."colors/easyonme.lua".text = ''
@@ -131,13 +194,6 @@ in
             local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
             hl.bg = normal.bg
             vim.api.nvim_set_hl(0, group, hl)
-          end
-
-          if vim.o.background == "dark" then
-            vim.api.nvim_set_hl(0, "WinSeparator", {
-              fg = "${colors.dark.ui.separator}",
-              bg = "${colors.dark.background}",
-            })
           end
         end,
       })

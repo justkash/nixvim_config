@@ -63,6 +63,10 @@ let
   # customized background.
   darkOverrides = {
     dark0_hard = "#101414";
+    gray = "#a89984";
+    neutral_red = "#e05b50";
+    neutral_blue = "#5a9294";
+    neutral_purple = "#b97a9d";
   };
   lightOverrides = {
     dark0_hard = "#302a23";
@@ -132,18 +136,31 @@ in
 {
   dark = withAliases true darkPalette {
     separator = "#171919";
-    activeText = darkPalette.light4;
-    mutedText = darkPalette.dark4;
+    border = darkPalette.dark4;
+    activeText = darkPalette.light1;
+    mutedText = darkPalette.gray;
+    surface = "#1c2222";
+    selection = "#343d3b";
+    selectionText = darkPalette.light1;
+    cursor = darkPalette.light1;
+    whitespace = darkPalette.dark4;
+    search = "#4c452e";
+    searchCurrent = "#685330";
+    match = darkPalette.bright_yellow;
   };
 
   light = withAliases false lightPalette {
     separator = lightPalette.light3;
+    border = "#85765e";
     activeText = lightPalette.dark1;
     mutedText = lightPalette.dark4;
     surface = lightPalette.light1;
     selection = lightPalette.light2;
-    whitespace = lightPalette.light4;
+    selectionText = lightPalette.dark1;
+    cursor = lightPalette.dark0_hard;
+    whitespace = "#85765e";
     search = "#e9d8ac";
     searchCurrent = "#ddc58d";
+    match = "#365c69";
   };
 }

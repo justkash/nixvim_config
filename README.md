@@ -6,8 +6,10 @@ EasyOnMe is derived from Gruvbox. Use `\tt` in normal mode to switch between
 dark and light. Each new Neovim session starts dark, and the selected theme
 lasts for that session. Light mode uses Gruvbox's default contrast with a warm
 ivory `#f7f1df` background, brown text, cream surfaces and selections, and
-coordinated earthy syntax, diagnostic, and terminal accents. Set it with
-`:colorscheme easyonme`.
+coordinated earthy syntax, diagnostic, and terminal accents. Both modes use
+distinct cursors, visible borders, and high-contrast menu selections. Pickers
+share the editor background so their rounded borders blend into surrounding
+buffers. Set it with `:colorscheme easyonme`.
 
 Edit the dark and light palette overrides in `colors/easyonme.nix` to
 customize their colors. Neovim highlight groups are customized in

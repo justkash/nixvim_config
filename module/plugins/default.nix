@@ -21,6 +21,8 @@
             function()
               local fzf_lua = require("fzf-lua")
               fzf_lua.setup({
+                -- Use the theme's explicit highlights for fzf's terminal colors.
+                fzf_colors = true,
                 defaults = {
                   -- Keep quickfix closed after <C-q> populates it;
                   -- <leader>q opens it when needed.
@@ -28,6 +30,8 @@
                 },
                 winopts = {
                   fullscreen = true,
+                  -- Keep rounded corners clear against the editor background.
+                  backdrop = false,
                   on_close = function()
                     vim.cmd("stopinsert")
                   end,
