@@ -1,5 +1,13 @@
 { ... }: {
   keymaps = [
+    # File browsing
+    {
+      mode = "n";
+      key = "<leader>dd";
+      action = "<cmd>Oil<CR>";
+      options.desc = "Open parent directory";
+    }
+
     # Theme
     {
       mode = "n";

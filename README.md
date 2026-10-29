@@ -48,3 +48,22 @@ This has the following consequences:
 - No swap files are written to Neovim's state directory
   (`~/.local/state/nvim/swap/` by default). Swap files left there by earlier
   sessions are no longer used and can be deleted.
+
+## Oil file manager
+
+[oil.nvim](https://github.com/stevearc/oil.nvim) lets you manage files by
+editing a directory listing as a buffer. In normal mode, press `\dd` to open
+the current file's directory; inside Oil, `-` goes to its parent. You can also
+run `:Oil path` or open Neovim on a directory. Press `<Enter>` to open an
+entry. Press `o` to add a name (end it with `/` to make a directory); edit an
+existing name to rename it while keeping its identifier. In Oil, `dd` deletes
+an entry.
+
+To move an entry, cut the whole line with `"add`, navigate to the destination,
+then paste with `"ap`. To copy, yank the whole line with `"ayy` and paste with
+`"ap`. Register `a` avoids relying on the system clipboard; keeping the full
+line preserves the entry identifier.
+
+Press `:w` to review and confirm the planned operations across Oil buffers
+before applying them. Finish moves before saving; use `u` to undo pending
+edits. Press `g.` to show hidden entries and `g?` for Oil's keymap help.

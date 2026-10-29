@@ -152,6 +152,8 @@
         strict = true;
       };
     };
+
+    oil.enable = true;
   };
 
   programs.obsessions = {
